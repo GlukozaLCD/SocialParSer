@@ -5,6 +5,7 @@
 скопированной папки без установки пакета и без PYTHONPATH (портативность).
 """
 
+import os
 import sys
 from pathlib import Path
 
@@ -32,7 +33,7 @@ def _venv_python_path() -> Path:
     return project_root / ".venv" / "bin" / "python"
 
 
-def _check_running_inside_venv() -> None:
+def _relaunch_inside_venv_if_needed() -> None:
     # Все сторонние библиотеки (questionary, requests, telethon и т.д.)
     # стоят только внутри .venv/ — если запустить системным "python" вместо
     # ".venv/.../python", импорт любого из них упадёт с ModuleNotFoundError
@@ -48,17 +49,20 @@ def _check_running_inside_venv() -> None:
         )
         raise SystemExit(1)
 
-    if Path(sys.executable).resolve() != venv_python.resolve():
-        print(
-            "Похоже, программа запущена не через своё виртуальное окружение — часть "
-            "библиотек не найдётся.\n"
-            f"Используйте вместо \"python\":\n  {venv_python}\n\n"
-            f'Например: "{venv_python}" {" ".join(sys.argv)}'
-        )
-        raise SystemExit(1)
+    if Path(sys.executable).resolve() == venv_python.resolve():
+        return
+
+    # Запущено не тем интерпретатором (например, системным "python" из README) —
+    # молча перезапускаем этот же процесс через python внутри .venv, подставив
+    # те же аргументы. os.execv заменяет текущий процесс, а не порождает новый:
+    # тот же терминал, тот же stdin/stdout, тот же код завершения — с точки
+    # зрения пользователя команда "python main.py ..." просто отрабатывает как
+    # надо, без необходимости печатать длинный путь до .venv вручную.
+    script = str(Path(__file__).resolve())
+    os.execv(str(venv_python), [str(venv_python), script, *sys.argv[1:]])
 
 
-_check_running_inside_venv()
+_relaunch_inside_venv_if_needed()
 
 import logging  # noqa: E402 (после проверки venv — она должна отработать первой)
 
