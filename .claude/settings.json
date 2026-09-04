@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Get-ChildItem *)",
+      "PowerShell(Test-Path *)",
+      "PowerShell(Get-Content *)",
+      "PowerShell(Get-CimInstance *)",
+      "PowerShell(git status *)",
+      "PowerShell(git --version)",
+      "PowerShell(Write-Output *)"
+    ]
+  }
+}

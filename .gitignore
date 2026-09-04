@@ -1,0 +1,16 @@
+# Виртуальное окружение — не переносится копированием, пересоздаётся setup.bat/setup.sh
+.venv/
+# Браузер Playwright (TikTok-адаптер) — тоже пересоздаётся setup.bat/setup.sh
+.playwright-browsers/
+
+# Личные данные пользователя: токены, сессии, список пабликов, результаты, логи
+config/credentials.json
+config/sessions/
+config/watchlist.json
+data/
+
+__pycache__/
+*.pyc
+
+# Локальные разрешения Claude Code для этой машины/сессии — не общий проектный конфиг
+.claude/settings.local.json
